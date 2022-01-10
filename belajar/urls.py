@@ -6,6 +6,7 @@ from . import exploratory
 from . import mldspot
 from . import dataquality
 from . import machinelearning
+from . import FundamentaVisualization
 
 urlpatterns = [
     path('persiapan/tugas-fundamental-3', persiapan.tugasFundamentalTiga),
@@ -34,6 +35,8 @@ urlpatterns = [
     path('data-quality/', dataquality.index),
     path('data-quality/tugas-profiling', dataquality.tugasProfiling),
     path('data-quality/tugas-mini-project', dataquality.tugasMiniProject),
+
+    path('fundamental-visualization/tugas-mini-project', FundamentaVisualization.tugasMiniProject),
 
     path('machine-learning/', machinelearning.index),
     path('machine-learning/supervised-learning', machinelearning.supervisedLearning),
