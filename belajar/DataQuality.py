@@ -16,6 +16,7 @@ from contextlib import closing
 import csv
 from sklearn import preprocessing
 from dateutil.relativedelta import relativedelta
+from scipy.stats import norm
 
 def index(request):
 
@@ -179,7 +180,20 @@ def tugasMiniProject(request):
 
     #Mengetahui kolom yang memiliki outliers!
     uncleaned_raw.boxplot()
-    #plt.show()
+    plt.show()
+
+    graph = getGraph()
+
+    print(uncleaned_raw['Quantity'].std())
+    print(uncleaned_raw['Quantity'].mean())
+
+    plt.clf()
+    # Plot between -10 and 10 with .001 steps.
+    x_axis = np.arange(uncleaned_raw['Quantity'].min()-10000, uncleaned_raw['Quantity'].max()+100, 100)
+    # Mean = 0, SD = 2.
+    plt.plot(x_axis, norm.pdf(x_axis,uncleaned_raw['Quantity'].mean(),uncleaned_raw['Quantity'].std()))
+
+    std = getGraph()
 
     #Check IQR
     Q1 = uncleaned_raw['UnitPrice'].quantile(0.25)
@@ -195,9 +209,7 @@ def tugasMiniProject(request):
     #remove duplication
     uncleaned_raw = uncleaned_raw.drop_duplicates()
 
-    graph = getGraph()
-
-    return HttpResponse("<img src='data:image/png;base64, "+graph+"' />")
+    return HttpResponse("<img src='data:image/png;base64, "+graph+"' />"+"<br/>"+"<img src='data:image/png;base64, "+std+"' />")
 
 def getGraph():
     buffer = BytesIO()

@@ -421,11 +421,8 @@ def tugasMiniProject(request):
     plt.clf()
     plt.figure()
     sns.pairplot(data)
-    plt.show()
 
     pairplot = getGraph()
-
-    elbow = getGraph()
 
     #5. Cek missing value
     print("\n[5] Cek missing value")
@@ -466,7 +463,12 @@ def tugasMiniProject(request):
     cr = classification_report(y_test,y_pred)
     print(cr)
 
-    return HttpResponse("<img src='data:image/png;base64, "+hist+"' />"+"<br/>"+"<img src='data:image/png;base64, "+pairplot+"' />")
+    plt.clf()
+    data.boxplot()
+
+    outliers = getGraph()
+
+    return HttpResponse("<img src='data:image/png;base64, "+hist+"' />"+"<br/>"+"<img src='data:image/png;base64, "+pairplot+"' />"+"<br/>"+"<img src='data:image/png;base64, "+outliers+"' />")
 
 def getGraph():
     buffer = BytesIO()
