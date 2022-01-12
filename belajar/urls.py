@@ -7,6 +7,7 @@ from . import mldspot
 from . import DataQuality
 from . import MachineLearning
 from . import FundamentalVisualization
+from . import DataManipulation
 
 urlpatterns = [
     path('persiapan/tugas-fundamental-3', persiapan.tugasFundamentalTiga),
@@ -42,6 +43,8 @@ urlpatterns = [
     path('machine-learning/supervised-learning', MachineLearning.supervisedLearning),
     path('machine-learning/unsupervised-learning', MachineLearning.unsupervisedLearning),
     path('machine-learning/tugas-mini-project', MachineLearning.tugasMiniProject),
+
+    path('data-manipulation/', DataManipulation.index),
 
     path('mldspot/data-mldspot', mldspot.dataInterest),
 
