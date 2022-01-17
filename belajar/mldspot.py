@@ -17,7 +17,7 @@ from sklearn import preprocessing
 from dateutil.relativedelta import relativedelta
 
 def dataInterest(request):
-    dataset = pd.read_excel("/code/Member_23-12-2021.xlsx")
+    dataset = pd.read_excel("/code/Member_13-01-2022.xlsx")
     
     cln_interest_data = dataset[(dataset['interest'].notna()) & (dataset['interest'] .notnull())]
 
@@ -27,6 +27,7 @@ def dataInterest(request):
     interests = pd.DataFrame({'interest': ['music', 'sport', 'travel', 'culinary', 'gadget & tech', 'fashion', 'enterpreneurship', 'design', 'education', 'movies']})
     interests['total'] = interests['interest'].apply(lambda x : cln_interest_data[cln_interest_data.interest.str.match(pat='.*'+x+'.*', case=False)].shape[0])
 
+    print(interests.groupby('interest')['total'].sum().sort_values(ascending=False))
     interests.groupby('interest')['total'].sum().sort_values(ascending=False).plot(kind='bar', color='green')
     plt.title('Perbadingan Interest User MLDSPOT', loc='center', pad=30, fontsize=15, color='blue')
     plt.xlabel('Interest', fontsize=15)

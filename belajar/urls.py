@@ -44,7 +44,11 @@ urlpatterns = [
     path('machine-learning/unsupervised-learning', MachineLearning.unsupervisedLearning),
     path('machine-learning/tugas-mini-project', MachineLearning.tugasMiniProject),
 
-    path('data-manipulation/', DataManipulation.index),
+    path('data-manipulation/introduction', DataManipulation.introduction),
+    path('data-manipulation/dataset-io', DataManipulation.datasetIO),
+    path('data-manipulation/transforming', DataManipulation.transforming),
+    path('data-manipulation/mysql', DataManipulation.mysql),
+
 
     path('mldspot/data-mldspot', mldspot.dataInterest),
 
