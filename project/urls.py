@@ -4,6 +4,7 @@ from . import persiapan
 from . import FundamentalScience
 from . import exploratory
 from . import mldspot
+from . import super
 from . import DataQuality
 from . import MachineLearning
 from . import FundamentalVisualization
@@ -51,5 +52,10 @@ urlpatterns = [
 
 
     path('mldspot/data-mldspot', mldspot.dataInterest),
+
+    path('super/data-login', super.dataLogin),
+
+    path('super/data-demographic', super.dataDemographic),
+
 
 ]
