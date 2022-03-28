@@ -1,3 +1,4 @@
+from re import I
 from django.http import HttpResponse
 from django.http import JsonResponse
 
@@ -33,7 +34,11 @@ def dataDemographic(request):
 
     dataset = pd.read_csv("/code/super-user-2022-01.csv")
 
-    birthdays = dataset[(dataset['dob'].notna()) & (dataset['dob'] .notnull())]
+    dataset = dataset[(dataset['log'].notna()) & (dataset['log'] .notnull()) & (dataset['log'])]
+
+    venue = dataset.loc[:, 'log'].unique()
+
+    birthdays = dataset[(dataset['dob'].notna()) & (dataset['dob'] .notnull()) & (dataset['dob'])]
     birthdays['age'] = birthdays['dob'].apply(lambda x: relativedelta(datetime.datetime.now(), datetime.datetime.strptime(x, "%Y-%m-%d")).years)
     birthdays['age_group'] = birthdays['age'].apply(lambda x: '10-17' if x>=10 and x<=17 else ('18-34' if x>= 18 and x<=34 else ('35-44' if x>=35 and x<=44 else ('45-54' if x>=45 and x<=54 else '55+'))))
 
@@ -47,7 +52,56 @@ def dataDemographic(request):
     print(age['total'])
     print(age_venue['total'])
 
+    cln_interest_data = dataset[(dataset['interests'].notna()) & (dataset['interests'] .notnull())]
+    interest = ['music', 'adventure', 'soccer', 'other']
+    data = getInterest(interest, venue)
+
+    interests = pd.DataFrame({'interests': data[0],'venue': data[1]})
+
+    interest.remove('other')
+    interests['total'] = interests.apply(lambda x : 0)
+    # interests['total'] = interests.apply(lambda x : cln_interest_data[cln_interest_data.interests.str.match(pat='^.*'+x+'.*$', case=False)].shape[0] if(x in data) else cln_interest_data[cln_interest_data.interests.str.match(pat='^(?!'+'|'.join(map(str, data))+').*$', case=False)].shape[0])
+
+    i = 0
+    for x, y in zip(interests['interests'], interests['venue']):
+        cln_interest_data_filtered = cln_interest_data[cln_interest_data['log'] == y ]
+        if( x in interest):
+            interests['total'][i] = cln_interest_data_filtered[cln_interest_data_filtered.interests.str.match(pat='^.*'+x+'.*$', case=False)].shape[0]
+        else:
+            interests['total'][i] = cln_interest_data_filtered[cln_interest_data_filtered.interests.str.match(pat='^(?!'+'|'.join(map(str, interest))+').*$', case=False)].shape[0]
+
+        i = i + 1
+
+    data_interest = interests.groupby(['interests']).sum('total').sort_values(by='total',ascending=False)
+    data_interest_venue = interests.groupby(['interests', 'venue']).sum('total').sort_values(['interests', 'venue'],ascending=[True, True])
+
+
+    print(data_interest)
+    print(data_interest_venue)
+
     return HttpResponse("Output On Console")
+
+def getInterest(interest, venue):
+    data_int = []
+
+    for x in interest:
+        for y in venue:
+            data_int.append(x)
+
+    data_ven = []
+
+    for x in interest:
+        for y in venue:
+            data_ven.append(y)
+
+
+    return [data_int, data_ven]
+
+def getPrint(data):
+    print(data[0])
+
+    return 3
+
 
 def getGraph():
     buffer = BytesIO()
