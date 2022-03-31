@@ -53,6 +53,9 @@ def dataDemographic(request):
     print(age_venue['total'])
 
     cln_interest_data = dataset[(dataset['interests'].notna()) & (dataset['interests'] .notnull())]
+
+    cln_interest_data = cln_interest_data.groupby(['user_id']).tail(1)
+
     interest = ['music', 'adventure', 'soccer', 'other']
     data = getInterest(interest, venue)
 
@@ -60,7 +63,6 @@ def dataDemographic(request):
 
     interest.remove('other')
     interests['total'] = interests.apply(lambda x : 0)
-    # interests['total'] = interests.apply(lambda x : cln_interest_data[cln_interest_data.interests.str.match(pat='^.*'+x+'.*$', case=False)].shape[0] if(x in data) else cln_interest_data[cln_interest_data.interests.str.match(pat='^(?!'+'|'.join(map(str, data))+').*$', case=False)].shape[0])
 
     i = 0
     for x, y in zip(interests['interests'], interests['venue']):
@@ -73,7 +75,7 @@ def dataDemographic(request):
         i = i + 1
 
     data_interest = interests.groupby(['interests']).sum('total').sort_values(by='total',ascending=False)
-    data_interest_venue = interests.groupby(['interests', 'venue']).sum('total').sort_values(['interests', 'venue'],ascending=[True, True])
+    data_interest_venue = interests.groupby(['venue', 'interests']).sum('total').sort_values(['venue', 'interests'],ascending=[True, True])
 
 
     print(data_interest)
