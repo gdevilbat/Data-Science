@@ -53,9 +53,11 @@ urlpatterns = [
 
     path('mldspot/data-mldspot', mldspot.dataInterest),
 
-    path('super/data-login', super.dataLogin),
+    path('super/<str:date>/data-login', super.dataLogin),
 
-    path('super/data-demographic', super.dataDemographic),
+    path('super/<str:date>/data-demographic', super.dataDemographic),
+
+    path('super/predict-data-user', super.predictDataUser),
 
 
 ]

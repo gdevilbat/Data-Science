@@ -6,5 +6,6 @@ requests>=2.26
 openpyxl>=3.0
 pandas-profiling>=3.0
 mysql-connector>=2.2
+tradingview-ta>=3.2
 seaborn
 sklearn
