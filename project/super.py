@@ -51,8 +51,20 @@ def dataDemographic(request, date:str):
     age = birthdays.groupby(['age_group']).nunique('user_id').rename(columns={'user_id':'total'}).sort_values(['age_group'],ascending=[True])
     age_venue = birthdays.groupby(['log', 'age_group']).nunique('user_id').rename(columns={'user_id':'total'}).sort_values(['log', 'age_group'],ascending=[True, True])
 
+    print("Data Age \r\n")
+
     print(age['total'])
     print(age_venue['total'])
+
+    data_gender = dataset[(dataset['gender'].notna()) & (dataset['gender'] .notnull()) & (dataset['gender'])]
+
+    gender = data_gender.groupby(['gender']).nunique('user_id').rename(columns={'user_id':'total'}).sort_values(['gender'],ascending=[True])
+    gender_venue = data_gender.groupby(['log', 'gender']).nunique('user_id').rename(columns={'user_id':'total'}).sort_values(['log', 'gender'],ascending=[True, True])
+
+    print("Data Gender \r\n")
+
+    print(gender['total'])
+    print(gender_venue['total'])
 
     cln_interest_data = dataset[(dataset['interests'].notna()) & (dataset['interests'] .notnull())]
 
