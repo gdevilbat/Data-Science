@@ -11,10 +11,19 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import requests
+import re
 from contextlib import closing
 import csv
 from sklearn import preprocessing
 from dateutil.relativedelta import relativedelta
+
+def dataLogin(request, date:str):
+    dataset = pd.read_csv("/code/mldspot-user-"+date+".csv")
+    dataset['log'] = dataset['url_path'].apply(lambda x: re.compile(r'ref%3D.*\&').search(x).group() if (re.compile(r'ref(%25%3D|%3D).*\&').search(x) is not None) else '' )
+
+    print(dataset.loc[:, 'log'])
+
+    return HttpResponse("Output On Console")
 
 def dataInterest(request):
     # dataset = pd.read_excel("/code/Member_13-01-2022.xlsx")
