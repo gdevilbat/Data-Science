@@ -55,6 +55,8 @@ urlpatterns = [
 
     path('mldspot/<str:date>/data-login', mldspot.dataLogin),
 
+    path('mldspot/<str:date>/data-demographic', mldspot.dataDemographic),
+
     path('super/<str:date>/data-login', super.dataLogin),
 
     path('super/<str:date>/data-demographic', super.dataDemographic),

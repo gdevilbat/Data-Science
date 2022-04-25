@@ -1,3 +1,4 @@
+from ast import pattern
 from django.http import HttpResponse
 from django.http import JsonResponse
 
@@ -19,11 +20,120 @@ from dateutil.relativedelta import relativedelta
 
 def dataLogin(request, date:str):
     dataset = pd.read_csv("/code/mldspot-user-"+date+".csv")
-    dataset['log'] = dataset['url_path'].apply(lambda x: re.compile(r'ref%3D.*\&').search(x).group() if (re.compile(r'ref(%25%3D|%3D).*\&').search(x) is not None) else '' )
 
-    print(dataset.loc[:, 'log'])
+    pattern = "(ref|utm_source)(%253D|%3D|=)(([A-z\-\.0-9]|(%20|%20%2520))+)((%|\&)*)"
+    dataset['log'] = dataset['url_path'].apply(lambda x: re.compile(pattern).search(x).group(3) if (bool(re.search(pattern, x))) else 'Organic' )
+
+    pattern = "(utm_medium)(%253D|%3D|=)(([A-z\-\.0-9]|(%20|%20%2520))+)((%|\&)*)"
+    dataset['medium'] = dataset['url_path'].apply(lambda x: re.compile(pattern).search(x).group(3) if (bool(re.search(pattern, x))) else 'None' )
+
+    total_login = dataset.groupby(['log', 'medium']).nunique('id.1').rename(columns={'id.1':'total'}).sort_values(by='log',ascending=False)
+    unique_login = dataset.groupby(['log', 'medium']).nunique('member_id').rename(columns={'member_id':'total'}).sort_values(by='log',ascending=False)
+
+    print("\r\n")
+
+    print("Unique Login")
+    print(unique_login['total'])
+    print("\r\n")
+
+    print("Total Login")
+    print(total_login['total'])
+    print("\r\n")
+
+    print("\r\n")
 
     return HttpResponse("Output On Console")
+
+def dataDemographic(request, date:str):
+    dataset = pd.read_csv("/code/mldspot-user-"+date+".csv")
+
+    pattern = "(ref|utm_source)(%253D|%3D|=)(([A-z\-\.0-9]|(%20|%20%2520))+)((%|\&)*)"
+    dataset['log'] = dataset['url_path'].apply(lambda x: re.compile(pattern).search(x).group(3) if (bool(re.search(pattern, x))) else 'Organic' )
+
+    pattern = "(utm_medium)(%253D|%3D|=)(([A-z\-\.0-9]|(%20|%20%2520))+)((%|\&)*)"
+    dataset['medium'] = dataset['url_path'].apply(lambda x: re.compile(pattern).search(x).group(3) if (bool(re.search(pattern, x))) else 'None' )
+
+    venue = dataset.loc[:, 'log'].unique()
+
+    birthdays = dataset[(dataset['meta_value'].notna()) & (dataset['meta_value'] .notnull()) & (dataset['meta_key'] == 'birthday')]
+    birthdays['age'] = birthdays['meta_value'].apply(lambda x: relativedelta(datetime.datetime.now(), datetime.datetime.strptime(x, "%Y-%m-%d")).years)
+    birthdays['age_group'] = birthdays['age'].apply(lambda x: '10-17' if x>=10 and x<=17 else ('18-24' if x>=18 and x<=24 else('25-34' if x>= 25 and x<=34 else ('35-44' if x>=35 and x<=44 else ('45-54' if x>=45 and x<=54 else '55+')))))
+
+    age = birthdays.groupby(['age_group']).nunique('member_id').rename(columns={'member_id':'total'}).sort_values(['age_group'],ascending=[True])
+    age_venue = birthdays.groupby(['log', 'age_group']).nunique('member_id').rename(columns={'member_id':'total'}).sort_values(['log', 'age_group'],ascending=[True, True])
+
+    print("\r\n")
+
+    print("Age Total")
+    print(age['total'])
+    print("\r\n")
+
+    print("Age Venue")
+    print(age_venue['total'])
+
+    data_gender = dataset[(dataset['meta_value'].notna()) & (dataset['meta_value'] .notnull()) & (dataset['meta_key'] == 'gender')]
+    data_gender['gender'] = dataset['meta_value'].apply(lambda x:  x)
+
+    gender = data_gender.groupby(['gender']).nunique('member_id').rename(columns={'member_id':'total'}).sort_values(['gender'],ascending=[True])
+    gender_venue = data_gender.groupby(['log', 'gender']).nunique('member_id').rename(columns={'member_id':'total'}).sort_values(['log', 'gender'],ascending=[True, True])
+
+    print("Gender Total")
+    print(gender['total'])
+    print("\r\n")
+
+    print("Gender Venue")
+    print(gender_venue['total'])
+
+    cln_interest_data = dataset[(dataset['meta_value'].notna()) & (dataset['meta_value'] .notnull()) & (dataset['meta_key'] == 'interest')]
+    cln_interest_data = cln_interest_data.groupby(['member_id']).tail(1)
+
+    interest = ['music', 'sport', 'travel', 'culinary', 'gadget & tech', 'fashion & streetwear', 'enterpreneurship', 'design', 'education', 'movies']
+    data = getInterest(interest, venue)
+
+    interests = pd.DataFrame({'interests': data[0],'venue': data[1]})
+
+    interests['total'] = interests.apply(lambda x : 0)
+
+    i = 0
+    for x, y in zip(interests['interests'], interests['venue']):
+        cln_interest_data_filtered = cln_interest_data[cln_interest_data['log'] == y ]
+        if( x in interest):
+            interests['total'][i] = cln_interest_data_filtered[cln_interest_data_filtered.meta_value.str.match(pat='^.*'+x+'.*$', case=False)].shape[0]
+        else:
+            interests['total'][i] = cln_interest_data_filtered[cln_interest_data_filtered.meta_value.str.match(pat='^(?!'+'|'.join(map(str, interest))+').*$', case=False)].shape[0]
+
+        i = i + 1
+
+    data_interest = interests.groupby(['interests']).sum('total').sort_values(by='total',ascending=False)
+    data_interest_venue = interests.groupby(['venue', 'interests']).sum('total').sort_values(['venue', 'interests'],ascending=[True, True])
+
+    print("Interest Total")
+    print(data_interest.to_string())
+    print("\r\n")
+
+    print("Interest Venue")
+    print(data_interest_venue.to_string())
+    print("\r\n")
+
+    print("\r\n")
+
+    return HttpResponse("Output On Console")
+
+def getInterest(interest, venue):
+    data_int = []
+
+    for x in interest:
+        for y in venue:
+            data_int.append(x)
+
+    data_ven = []
+
+    for x in interest:
+        for y in venue:
+            data_ven.append(y)
+
+
+    return [data_int, data_ven]
 
 def dataInterest(request):
     # dataset = pd.read_excel("/code/Member_13-01-2022.xlsx")
