@@ -70,6 +70,18 @@ def dataDemographic(request, date:str):
 
     print("Age Venue")
     print(age_venue['total'])
+    print("\r\n")
+
+    otp = dataset.groupby(['int_phone_verified']).nunique('member_id').rename(columns={'member_id':'total'}).sort_values(['int_phone_verified'],ascending=[True])
+    otp_venue = dataset.groupby(['log', 'int_phone_verified']).nunique('member_id').rename(columns={'member_id':'total'}).sort_values(['log', 'int_phone_verified'],ascending=[True, True])
+
+    print("OTP Total")
+    print(otp['total'])
+    print("\r\n")
+
+    print("OTP Venue")
+    print(otp_venue['total'])
+    print("\r\n")
 
     data_gender = dataset[(dataset['meta_value'].notna()) & (dataset['meta_value'] .notnull()) & (dataset['meta_key'] == 'gender')]
     data_gender['gender'] = dataset['meta_value'].apply(lambda x:  x)
