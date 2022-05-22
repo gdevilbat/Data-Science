@@ -49,19 +49,4 @@ urlpatterns = [
     path('data-manipulation/dataset-io', DataManipulation.datasetIO),
     path('data-manipulation/transforming', DataManipulation.transforming),
     path('data-manipulation/mysql', DataManipulation.mysql),
-
-
-    path('mldspot/data-mldspot', mldspot.dataInterest),
-
-    path('mldspot/<str:date>/data-login', mldspot.dataLogin),
-
-    path('mldspot/<str:date>/data-demographic', mldspot.dataDemographic),
-
-    path('super/<str:date>/data-login', super.dataLogin),
-
-    path('super/<str:date>/data-demographic', super.dataDemographic),
-
-    path('super/predict-data-user', super.predictDataUser),
-
-
 ]
