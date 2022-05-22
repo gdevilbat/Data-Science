@@ -3,8 +3,6 @@ from django.urls import path
 from . import persiapan
 from . import FundamentalScience
 from . import exploratory
-from . import mldspot
-from . import super
 from . import DataQuality
 from . import MachineLearning
 from . import FundamentalVisualization
