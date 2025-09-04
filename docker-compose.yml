@@ -4,12 +4,19 @@ version: '3.8'
 services:
   web:
     container_name: django_web
-    build: .
+    build:
+      context: ./
+      dockerfile: Dockerfile
+      args:
+          USER_ID: $USER_ID
+          GROUP_ID: $GROUP_ID
+          USER_NAME: $USER_NAME
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/code
     ports:
       - "127.0.0.10:8000:8000"
+    restart: unless-stopped
     environment:
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=postgres
